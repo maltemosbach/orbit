@@ -144,9 +144,16 @@ def create_pointcloud_from_depth(
     depth_cloud = math_utils.unproject_depth(depth, intrinsic_matrix)
     # convert 3D points to world frame
     depth_cloud = math_utils.transform_points(depth_cloud, position, orientation)
+
+    print("depth_cloud.shape:,", depth_cloud.shape)
+    print("depth_cloud:", depth_cloud)
+
     # keep only valid entries
-    pts_idx_to_keep = torch.all(torch.logical_and(~torch.isnan(depth_cloud), ~torch.isinf(depth_cloud)), dim=1)
-    depth_cloud = depth_cloud[pts_idx_to_keep, ...]
+    if not keep_invalid:
+        pts_idx_to_keep = torch.logical_and(~torch.isnan(depth_cloud), ~torch.isinf(depth_cloud))
+        print("pts_idx_to_keep:", pts_idx_to_keep)
+        print("pts_idx_to_keep.shape:", pts_idx_to_keep.shape)
+        depth_cloud = depth_cloud[pts_idx_to_keep, ...]
 
     # return everything according to input type
     if is_numpy:
